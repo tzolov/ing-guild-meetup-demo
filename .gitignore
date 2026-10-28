@@ -1,0 +1,15 @@
+target/
+.env
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+.DS_Store
+*.log
+**/*.flattened-pom.xml
+CLAUDE.md
+**/.claude/settings.local.json

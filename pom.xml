@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>4.0.7</version>
+		<relativePath />
+	</parent>
+
+	<groupId>com.example</groupId>
+	<artifactId>ing-guild-meetup-demo</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>ing-guild-meetup-demo</name>
+	<description>ING AI Guild meetup: Spring AI demos on Gemini</description>
+
+	<properties>
+		<java.version>17</java.version>
+		<spring-ai.version>2.1.0-SNAPSHOT</spring-ai.version>
+		<spring-ai-typesafe.version>0.4.0</spring-ai-typesafe.version>
+	</properties>
+
+	<modules>
+		<module>common</module>
+		<module>ing-compliance-assistant</module>
+		<module>ing-compliance-assistant-2</module>
+		<module>ing-compliance-assistant-3</module>
+		<module>ing-support-agent</module>
+		<module>ing-support-agent-2</module>
+	</modules>
+
+	<!-- Common dependencies inherited by all sub-modules -->
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- Netty DNS resolver for macOS -->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-resolver-dns-native-macos</artifactId>
+			<classifier>osx-aarch_64</classifier>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.example</groupId>
+				<artifactId>common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-bom</artifactId>
+				<version>${spring-ai.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<profiles>
+		<!-- Spring AI Inspector instrumentation: every demo reports to a running inspector.
+		     The starter is not published, so it has to be installed in the local Maven repository first. -->
+		<profile>
+			<id>inspector</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.springaicommunity</groupId>
+					<artifactId>spring-ai-inspector-starter</artifactId>
+					<version>0.0.1-SNAPSHOT</version>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+
+	<repositories>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>spring-snapshots</id>
+			<name>Spring Snapshots</name>
+			<url>https://repo.spring.io/snapshot</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
+
+</project>
