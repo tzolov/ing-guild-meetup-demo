@@ -55,8 +55,6 @@ mvn spring-boot:run -pl ing-compliance-assistant-3 -Dspring-boot.run.profiles=je
 mvn spring-boot:run -pl ing-compliance-assistant-3 -Dspring-boot.run.arguments="--demo.top-k=10 --demo.prompt-size=16"
 ```
 
-Optional: the Spring AI Inspector (see the [top-level README](../README.md#prerequisites); run with `-Pinspector`) on <http://localhost:9001> shows the call, the five searches and the advisor chain.
-
 ## What happens
 
 The `RetrievalAugmentationAdvisor` in `ComplianceAssistantApplication` is built from four stages:
@@ -120,9 +118,8 @@ Record the talk run against the TypeSafe API.
 
 ## Compared with the naive version
 
-Two Inspector traces of 27 October 2026, same 28 passages, same product description, `gemini-3.8-flash`:
-`ing-compliance-assistant-2` (run `1c73ded4`) against this module with Jev on the TypeSafe API, `jev-1.14.0`
-(run `91cee7a6`).
+Two runs of 27 October 2026, same 28 passages, same product description, `gemini-3.8-flash`:
+`ing-compliance-assistant-2` against this module with Jev on the TypeSafe API, `jev-1.14.0`.
 
 | | Naive RAG | Modular RAG + Jev |
 |---|---|---|

@@ -54,8 +54,7 @@ cd docker && docker compose up -d && cd ..
 mvn spring-boot:run -pl ing-support-agent-2 -Dspring-boot.run.profiles=otel
 ```
 
-Optional: the Spring AI Inspector (see the [top-level README](../README.md#prerequisites); run with `-Pinspector`),
-then <http://localhost:9001>. A run is two turns, four Gemini calls, about 20 seconds.
+A run is two turns, four Gemini calls, about 20 seconds.
 
 ## What happens
 
@@ -107,7 +106,7 @@ AGENT: Anna, your mortgage payment for next month is scheduled for 2026-11-01 in
 
 | Turn | What to point at |
 |---|---|
-| 1 | The `[PII]` line: the IBAN never reaches Gemini, the memory or the Inspector. The model worked out `2026-10` from "this month" and the date in the prompt, and chose two tools on its own. The reason and the retry date come from the row, not from the model. |
+| 1 | The `[PII]` line: the IBAN never reaches Gemini, the memory or the logs. The model worked out `2026-10` from "this month" and the date in the prompt, and chose two tools on its own. The reason and the retry date come from the row, not from the model. |
 | 2 | "And next month?" has no subject. The session history makes it the November mortgage payment, and the model asks for `2026-11`. Nobody repeated "mortgage". |
 
 Stable across runs: the masking, the tool calls and their arguments. Whether turn 1 calls one tool or two, and
@@ -157,7 +156,8 @@ the SDK's 3.x-generated classes.
    `ChatClient` wiring in `SupportAgentApplication`: the tools, the tool context, the two advisors.
 2. Run it. Turn 1: point at the `[PII]` line, then the tool calls and what came back. The pause after
    "And next month?" is the moment: no subject, the right tool, the right month.
-3. Inspector, sequence view of turn 2: the history the memory advisor prepended, masked, and the tool call.
+3. If the stack is up (`otel` profile): Grafana, Explore → Loki, turn 2's prompt: the history the memory advisor
+   prepended, masked. Then its trace in Tempo, with the tool call and the month the model chose.
 
 What the audience should take away: the agent's knowledge is the bank's own services, the model never holds the
 customer id, the PII never leaves, and every step is on record.
@@ -171,6 +171,6 @@ customer id, the PII never leaves, and every step is on record.
 | `SupportDependencies.java` | the per-conversation context (customer id) the tools read from the `ToolContext` |
 | `AccountService.java`, `MortgageService.java` | the `@Service` beans with the `@Tool` methods |
 | `schema.sql`, `data.sql` | the H2 tables and the three customers |
-| `application.properties` | Gemini, `demo.customer-id=1001`, inspector on, exports off |
+| `application.properties` | Gemini, `demo.customer-id=1001`, exports off |
 | `application-otel.properties` | the audit trail: web on 8080, Prometheus, OTLP to Tempo, the content switches |
 | `logback-spring.xml` | console always; the Loki appender under the `otel` profile |

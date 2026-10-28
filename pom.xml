@@ -61,21 +61,6 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<profiles>
-		<!-- Spring AI Inspector instrumentation: every demo reports to a running inspector.
-		     The starter is not published, so it has to be installed in the local Maven repository first. -->
-		<profile>
-			<id>inspector</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.springaicommunity</groupId>
-					<artifactId>spring-ai-inspector-starter</artifactId>
-					<version>0.0.1-SNAPSHOT</version>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
-
 	<repositories>
 		<repository>
 			<id>spring-milestones</id>

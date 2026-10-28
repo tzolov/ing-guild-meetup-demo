@@ -43,8 +43,6 @@ mvn spring-boot:run -pl ing-compliance-assistant-2
 mvn spring-boot:run -pl ing-compliance-assistant-2 -Dspring-boot.run.arguments=--demo.top-k=18
 ```
 
-Optional: the Spring AI Inspector (see the [top-level README](../README.md#prerequisites); run with `-Pinspector`) on <http://localhost:9001> shows the call, the vector search and the advisor chain.
-
 ## What happens
 
 1. **Load.** `RegulationLoader` turns the files under `regulations/` into one `Document` per paragraph: 11

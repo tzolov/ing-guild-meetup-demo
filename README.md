@@ -1,9 +1,8 @@
 # ING AI Guild meetup — the two Spring AI demos
 
 Two Gemini demos built on the use cases ING runs on its GenAI platform, shown at the ING AI Guild meetup on
-27 October 2026. Both are CLI apps: one `CommandLineRunner`, the `MyLoggingAdvisor` from `common`, and optionally
-the Spring AI Inspector showing each call. Each module has its own README with the run commands and the expected
-output.
+27 October 2026. Both are CLI apps: one `CommandLineRunner` and the `MyLoggingAdvisor` from `common` showing each call.
+Each module has its own README with the run commands and the expected output.
 
 | Module | ING use case | Spring AI on screen |
 |---|---|---|
@@ -18,11 +17,6 @@ output.
   (`cp .env.example .env`; the demos load it on start-up, real environment variables win), and
   `gcloud auth application-default login`. For the Gemini Developer API instead, set
   `spring.ai.google.genai.api-key` (and `spring.ai.google.genai.embedding.api-key` for demo 1).
-- Optional: the [Spring AI Inspector](https://github.com/tzolov/voxxeddays2026-demo/tree/main/spring-ai-inspector), which lives in the voxxeddays2026-demo repo and is not published. Clone that repo,
-  `cd spring-ai-inspector && mvn install -DskipTests` once, start the server with
-  `mvn -pl spring-ai-inspector-server spring-boot:run`, then <http://localhost:9001>. Here, add `-Pinspector`
-  to the run commands below so the demos report to it. Google GenAI calls go through the SDK, so there is no raw-wire view; the inspector
-  shows the call as the advisors see it, the tool runs, the vector searches and the memory, plus the sequence view.
 - Optional, demo 1: Jev, either `TYPESAFE_API_KEY` or a local `ollama pull tev1:0.8b` with the `jev-ollama` profile.
 - Optional, demo 2: the Grafana stack in `docker/` for the audit trail, `cd docker && docker compose up -d`
   (Prometheus :9090, Tempo :3200/:4318, Loki :3100, Grafana :3000).
@@ -52,7 +46,7 @@ mvn spring-boot:run -pl ing-support-agent-2 -Dspring-boot.run.profiles=otel     
   It runs twice: naive RAG first, then Modular RAG with Jev on the same product, to compare what changed.
 - **Demo 2** shows the agentic side: the model decides which of the bank's services to call, and the framework
   decides what it may see (masking, the customer id in the tool context) and keeps the record (memory, traces).
-- **Auditing** joins them: the Inspector for one call, Grafana for the fleet, from the same Micrometer
-  observations; the content switches say which spans may carry what.
+- **Auditing** joins them: the Micrometer observations Spring AI emits become metrics, traces and logs in
+  Grafana; the content switches say which spans may carry what.
 - **MCP** is the next step: the same `@Service` beans the agent calls are what an MCP server would expose,
   M + N integrations instead of M x N.
