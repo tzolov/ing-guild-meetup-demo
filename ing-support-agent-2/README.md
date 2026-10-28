@@ -46,7 +46,12 @@ Prerequisites: Java 17+, Maven, Gemini through Vertex AI (`GOOGLE_CLOUD_PROJECT`
 the repo-root `.env`, `gcloud auth application-default login`). Model: `gemini-3.8-flash`.
 
 ```bash
+# Plain: the two-turn conversation on the console, then exit
 mvn spring-boot:run -pl ing-support-agent-2
+
+# With the audit trail exported to Grafana (start the stack first, see below)
+cd docker && docker compose up -d && cd ..
+mvn spring-boot:run -pl ing-support-agent-2 -Dspring-boot.run.profiles=otel
 ```
 
 Optional: the Spring AI Inspector (see the [top-level README](../README.md#prerequisites); run with `-Pinspector`),
@@ -108,6 +113,44 @@ AGENT: Anna, your mortgage payment for next month is scheduled for 2026-11-01 in
 Stable across runs: the masking, the tool calls and their arguments. Whether turn 1 calls one tool or two, and
 the wording of the answers, vary with the model.
 
+## The audit trail (`otel` profile)
+
+The Micrometer observations Spring AI emits, exported to the Grafana stack in [`docker/`](../docker): metrics
+scraped from `/actuator/prometheus`, traces over OTLP to Tempo, log lines to Loki, all in Grafana at
+<http://localhost:3000> (no login). On this profile the app is a web app on port 8080 (the Prometheus container
+scrapes that port) and stays up after the conversation, so there is time to walk through Grafana; stop it with
+Ctrl-C, the data stays in the containers.
+
+Where to look, in Grafana (the numbers are from a run of 28 October 2026 with `gemini-3.8-flash`):
+
+- **Explore → Tempo**, search service `ing-support-agent-2`: one trace per turn. Each nests as the advisor chain
+  nests, down to the `chat gemini-3.8-flash` spans (model, temperature, finish reason, input/output tokens) and
+  the `execute_tool` spans, with the arguments the model chose in `spring.ai.tool.call.arguments`
+  (`{"month":"2026-10"}` in turn 1, `{"month":"2026-11"}` in turn 2) and the row the bank system returned in
+  `spring.ai.tool.call.result`. "Logs for this span" opens the Loki lines that carry the trace id.
+- **Explore → Prometheus**: `gen_ai_client_operation_seconds_count{application="ing-support-agent-2"}` (4 model
+  calls), `spring_ai_tool_seconds_count` by `spring_ai_tool_definition_name` (mortgagePaymentStatus 2,
+  upcomingMortgagePayments 1), `gen_ai_client_token_usage_total` by `gen_ai_token_type` (4658 input, 247 output,
+  7207 total; the gap is Gemini's thinking). The **Spring AI** dashboard reads the same metrics, plus the prompts
+  from Loki.
+- **Explore → Loki**, `{app="ing-support-agent-2"} |= "Chat Model Prompt"`: the four prompts as Gemini received
+  them, each line tagged with its trace id. `|= "NL91"` finds nothing; `|= "[IBAN]"` finds all four, turn 2's
+  through the session memory.
+
+Which spans may carry content is the point of the profile's settings (`application-otel.properties`):
+
+| Switch | Setting | Why |
+|---|---|---|
+| `spring.ai.chat.client.observations.log-prompt` | off | the ChatClient observation is at the top of the chain and sees the message as the customer typed it, IBAN included |
+| `spring.ai.chat.observations.log-prompt` / `log-completion` | on | the model observation runs after `PiiMaskingAdvisor`: this is what Gemini actually received and answered |
+| `spring.ai.tools.observations.include-content` | on | the arguments the model chose and what the bank system answered: the audit trail a risk team asks for |
+
+ING's GenAI platform runs on GCP; the same OTLP export goes to Cloud Trace and Cloud Monitoring without new code.
+
+Build note: the Google GenAI SDK pulls protobuf-java 3.25 and the OpenTelemetry starter's `opentelemetry-proto`
+is generated for protobuf 4, so the pom pins protobuf-java 4.32 in `dependencyManagement`; the 4.x runtime loads
+the SDK's 3.x-generated classes.
+
 ## On stage
 
 1. Show `MortgageService`: an ordinary service over `JdbcClient`, one annotation per method. Then the
@@ -128,4 +171,6 @@ customer id, the PII never leaves, and every step is on record.
 | `SupportDependencies.java` | the per-conversation context (customer id) the tools read from the `ToolContext` |
 | `AccountService.java`, `MortgageService.java` | the `@Service` beans with the `@Tool` methods |
 | `schema.sql`, `data.sql` | the H2 tables and the three customers |
-| `application.properties` | Gemini, `demo.customer-id=1001`, inspector on |
+| `application.properties` | Gemini, `demo.customer-id=1001`, inspector on, exports off |
+| `application-otel.properties` | the audit trail: web on 8080, Prometheus, OTLP to Tempo, the content switches |
+| `logback-spring.xml` | console always; the Loki appender under the `otel` profile |

@@ -13,6 +13,19 @@
 	<name>ING 2 - Support Agent (short)</name>
 	<description>ING meetup demo 2, the version in the talk: tools on existing service beans, session memory, PII masking</description>
 
+	<dependencyManagement>
+		<dependencies>
+			<!-- The Google GenAI SDK pulls protobuf-java 3.25 (compile scope, so it wins by proximity) while the
+			     OpenTelemetry starter's opentelemetry-proto is generated for protobuf 4 (RuntimeVersion$RuntimeDomain).
+			     The 4.x runtime still loads the SDK's 3.x-generated classes, so the newer one is pinned. -->
+			<dependency>
+				<groupId>com.google.protobuf</groupId>
+				<artifactId>protobuf-java</artifactId>
+				<version>4.32.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.example</groupId>
@@ -37,6 +50,26 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
+		</dependency>
+
+		<!-- The audit trail, Grafana stack in docker/, active with the 'otel' profile:
+		     metrics scraped from /actuator/prometheus, traces over OTLP to Tempo, logs to Loki, all in Grafana -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-opentelemetry</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.loki4j</groupId>
+			<artifactId>loki-logback-appender</artifactId>
+			<version>2.0.0</version>
 		</dependency>
 	</dependencies>
 
