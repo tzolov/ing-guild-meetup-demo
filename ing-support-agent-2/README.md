@@ -11,9 +11,6 @@ On Spring AI, one `ChatClient` and four lines of wiring:
 - `PiiMaskingAdvisor`: replaces IBANs and long numbers in the message before it reaches the model or the memory.
 - `SessionMemoryAdvisor`: the conversation, so turn 2 can be "And next month?".
 
-The longer version, with the intent classifier, the typed handoff and the Grafana audit trail, is
-[`ing-support-agent`](../ing-support-agent/README.md).
-
 ```mermaid
 sequenceDiagram
     autonumber

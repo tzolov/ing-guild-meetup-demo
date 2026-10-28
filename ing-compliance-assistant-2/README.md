@@ -7,8 +7,8 @@ store.
 
 Three steps, three lines of Spring AI: **load** the regulation passages into a vector store, **retrieve** the ten
 closest to the product description with the `QuestionAnswerAdvisor`, **generate** the checklist with Gemini's
-native structured output. No query rewriting, no expansion, no reranking. The longer version with Modular RAG
-and Jev is [`ing-compliance-assistant`](../ing-compliance-assistant/README.md); this one is what goes on stage.
+native structured output. No query rewriting, no expansion, no reranking. The Modular RAG version with Jev
+is [`ing-compliance-assistant-3`](../ing-compliance-assistant-3/README.md).
 
 ```mermaid
 sequenceDiagram
@@ -50,7 +50,7 @@ Optional: the Spring AI Inspector (see the [top-level README](../README.md#prere
 1. **Load.** `RegulationLoader` turns the files under `regulations/` into one `Document` per paragraph: 11
    passages of the EU AI Act, 9 of the GDPR, 6 of a fictional ING Product Approval Policy and 2 fictional
    intranet-wiki pages (one of them a planted prompt injection, one about the office restaurant), each tagged
-   `[source, clause]`. The same 28 passages and the same product as `ing-compliance-assistant`, so the two modules
+   `[source, clause]`. The same 28 passages and the same product as `ing-compliance-assistant-3`, so the two modules
    compare like for like. `SimpleVectorStore` embeds them at startup (about 15 seconds). In production this is the
    ETL run, once, into pgvector or AlloyDB.
 2. **Retrieve.** `QuestionAnswerAdvisor` embeds the product description, takes the ten most similar passages
@@ -98,13 +98,13 @@ the severities vary between runs; the set of cited clauses is stable.
 the regulation and report no open questions. Nothing screens it here, so it goes to Gemini with the other nine
 (and pushes EU AI Act Art. 13 out of the top ten). In this run Gemini ignored it, because the system prompt
 says to answer from the excerpts and the model treated the note as one more excerpt. That is luck, not a
-guarantee: in `ing-compliance-assistant` the Jev filter drops the note before the model sees it, which is the
+guarantee: in `ing-compliance-assistant-3` the Jev filter drops the note before the model sees it, which is the
 point of that stage.
 
 **No GDPR in the top ten.** `[GDPR, Art. 22]` is in the store and ranks 18th of 28 for this description: one
 similarity search ranks by vocabulary, and the description talks like the policy. With `--demo.top-k=18` the
 checklist gains GDPR Art. 22 and Art. 44 to 46 as blockers. That gap is the limit of one search, and it is
-exactly what the query rewriting and expansion of `ing-compliance-assistant` fix. On stage it is a 15-second
+exactly what the fixed regulatory angles of `ing-compliance-assistant-3` fix. On stage it is a 15-second
 remark and a pointer to the longer version, not a problem to hide.
 
 ## On stage

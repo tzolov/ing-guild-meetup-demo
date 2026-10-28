@@ -1,15 +1,14 @@
 # ING demo 1 (modular, simple): the compliance assistant for new products
 
-This module is the Modular RAG version of the compliance assistant with the per-source groupings taken out.
+This module is the Modular RAG version of the compliance assistant.
 It keeps the two stages that make the difference against the naive version: the **fixed regulatory angles** that
 widen the search, and **Jev** screening and reranking the passages before they reach the model.
 Retrieval is Spring AI's own `VectorStoreDocumentRetriever`, one search per query, with no metadata filters and no
 quota per regulation.
 
 It loads the same 28 passages and reviews the same product as
-[`ing-compliance-assistant-2`](../ing-compliance-assistant-2/README.md) (naive RAG) and
-[`ing-compliance-assistant`](../ing-compliance-assistant/README.md) (the full modular pipeline), so the three compare
-like for like.
+[`ing-compliance-assistant-2`](../ing-compliance-assistant-2/README.md) (naive RAG), so the two compare like for
+like.
 
 ```mermaid
 sequenceDiagram
@@ -73,8 +72,8 @@ The `RetrievalAugmentationAdvisor` in `ComplianceAssistantApplication` is built 
 The green `[retrieve]`, `[retrieved]`, `[jev-screened]` and `[jev-reranked]` lines print what each stage passes on,
 so the audience can follow the passage count from search to prompt.
 
-Compared with `ing-compliance-assistant`, this module drops the per-source retriever (one filtered search per
-regulation), the per-source quota after the rerank, and the conflict flags.
+There is no per-source retriever (one filtered search per regulation), no per-source quota after the rerank, and
+no conflict flags.
 The cost is that the reranker alone decides what is cut, and it can cut a section of the bank's own policy that
 applies to every product but does not answer the product description, such as the committee sign-off in Section 2.
 Raise `demo.prompt-size` when that matters more than a short prompt.
@@ -153,7 +152,7 @@ modular pipeline adds before it.
 
 The filter also classified four passages as `CONFLICTING` with the description (contradiction 0.71 to 0.91: policy
 Sections 3 and 5, GDPR Art. 22, EU AI Act Art. 14) and kept them, as the policy intends.
-This module does not pass that signal to the model; `ing-compliance-assistant` does, with its conflict flags.
+This module does not pass that signal to the model.
 
 ## Files
 

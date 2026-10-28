@@ -25,10 +25,8 @@
 
 	<modules>
 		<module>common</module>
-		<module>ing-compliance-assistant</module>
 		<module>ing-compliance-assistant-2</module>
 		<module>ing-compliance-assistant-3</module>
-		<module>ing-support-agent</module>
 		<module>ing-support-agent-2</module>
 	</modules>
 
