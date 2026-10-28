@@ -4,6 +4,8 @@ Two Gemini demos built on the use cases ING runs on its GenAI platform, shown at
 27 October 2026. Both are CLI apps: one `CommandLineRunner` and the `MyLoggingAdvisor` from `common` showing each call.
 Each module has its own README with the run commands and the expected output.
 
+The slides of the talk: [`slides/ING-2026-Oct-Final.pdf`](slides/ING-2026-Oct-Final.pdf).
+
 | Module | ING use case | Spring AI on screen |
 |---|---|---|
 | [`ing-compliance-assistant-2`](ing-compliance-assistant-2/README.md) | Risk and compliance for new products: the compliance questions for a product launch, each citing its regulation. | Plain RAG (`QuestionAnswerAdvisor` over a vector store), Gemini embeddings, Gemini's native structured output into a `ComplianceChecklist` |
